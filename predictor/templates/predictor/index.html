@@ -1,0 +1,61 @@
+{% extends 'predictor/base.html' %}
+
+{% block content %}
+<div class="header">
+    <h1>🌿 Agri<span>FusionX</span></h1>
+    <p class="tagline">AI-Powered Leaf Disease Detection & Treatment Guide</p>
+    <div class="features">
+        <span class="feature-badge">🎯 Disease Type</span>
+        <span class="feature-badge">💚 Health Status</span>
+        <span class="feature-badge">📊 Yield Estimation</span>
+        <span class="feature-badge">🔥 Disease Heatmap</span>
+        <span class="feature-badge">📚 Treatment Guide</span>
+    </div>
+</div>
+
+<div class="card">
+    <h2 style="margin-bottom: 20px;">Upload Leaf Image</h2>
+    <p style="color: #666; margin-bottom: 20px;">Select a clear leaf image to analyze disease & health status.</p>
+    
+    <form id="upload-form" method="post" enctype="multipart/form-data" action="{% url 'predict' %}" onsubmit="return validateForm()">
+        {% csrf_token %}
+        <div class="upload-area">
+            <div>
+                <input type="file" name="leaf_image" id="leaf_image" accept="image/*" style="display: none;" required>
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('leaf_image').click()">
+                    📁 Choose File
+                </button>
+            </div>
+            <p id="file-name" style="margin-top: 15px; color: #888;">No file chosen</p>
+            <button type="submit" class="btn">🔍 Predict Disease</button>
+        </div>
+    </form>
+    
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p style="margin-top: 10px;">Analyzing leaf image with AI...</p>
+    </div>
+    
+    {% if error %}
+    <div class="error-message">
+        ⚠️ {{ error }}
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    document.getElementById('leaf_image').addEventListener('change', function(e) {
+        const fileName = e.target.files[0] ? e.target.files[0].name : 'No file chosen';
+        document.getElementById('file-name').textContent = fileName;
+        
+        // Show preview if needed
+        if (e.target.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // You can add image preview here if desired
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    });
+</script>
+{% endblock %}

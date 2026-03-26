@@ -1,0 +1,20 @@
+# Additional .gitignore entries for specific project needs
+*.pyc
+__pycache__/
+staticfiles/
+db.sqlite3
+.env
+venv/
+env/
+.DS_Store
+.vscode/
+.idea/
+*.log
+*.pid
+*.sqlite3
+*.db
+
+# Keep example files
+!media/uploads/
+!media/heatmaps/
+!models/README.md

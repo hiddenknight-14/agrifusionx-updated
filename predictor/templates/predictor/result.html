@@ -1,0 +1,275 @@
+<!-- predictor/templates/predictor/result.html - Update the disease analysis section -->
+{% extends 'predictor/base.html' %}
+
+{% block extra_css %}
+<style>
+    .result-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-bottom: 30px;
+    }
+    
+    .result-card {
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+    
+    .result-card h3 {
+        color: #2c3e50;
+        margin-bottom: 20px;
+        border-left: 4px solid #667eea;
+        padding-left: 15px;
+    }
+    
+    .disease-info {
+        margin-top: 20px;
+    }
+    
+    .info-item {
+        margin-bottom: 20px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 10px;
+    }
+    
+    .info-item h4 {
+        color: #667eea;
+        margin-bottom: 10px;
+        font-size: 1.1em;
+    }
+    
+    .info-item p {
+        color: #555;
+        line-height: 1.6;
+    }
+    
+    .confidence-bar {
+        background: #e0e0e0;
+        border-radius: 10px;
+        height: 20px;
+        overflow: hidden;
+        margin-top: 10px;
+    }
+    
+    .confidence-fill {
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        height: 100%;
+        border-radius: 10px;
+        transition: width 1s ease;
+    }
+    
+    .health-score-bar {
+        background: #e0e0e0;
+        border-radius: 10px;
+        height: 20px;
+        overflow: hidden;
+        margin-top: 10px;
+    }
+    
+    .health-score-fill {
+        background: linear-gradient(90deg, #27ae60 0%, #2ecc71 100%);
+        height: 100%;
+        border-radius: 10px;
+        transition: width 1s ease;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.9em;
+        font-weight: bold;
+        margin-left: 10px;
+    }
+    
+    .status-diseased {
+        background: #fee;
+        color: #c33;
+    }
+    
+    .status-healthy {
+        background: #efe;
+        color: #27ae60;
+    }
+    
+    .image-container {
+        text-align: center;
+        margin: 20px 0;
+    }
+    
+    .leaf-image {
+        max-width: 100%;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .heatmap-section {
+        margin-top: 20px;
+    }
+    
+    .action-buttons {
+        text-align: center;
+        margin-top: 30px;
+    }
+    
+    .health-indicator {
+        text-align: center;
+        padding: 10px;
+        border-radius: 10px;
+        margin-top: 15px;
+    }
+    
+    .health-excellent {
+        background: #d5f4e6;
+        color: #27ae60;
+    }
+    
+    .health-good {
+        background: #fff3cd;
+        color: #f39c12;
+    }
+    
+    .health-poor {
+        background: #f8d7da;
+        color: #e74c3c;
+    }
+    
+    @media (max-width: 768px) {
+        .result-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="header">
+    <h1>🌿 Prediction Results</h1>
+    <p class="tagline">Detailed analysis of your leaf sample</p>
+</div>
+
+<div class="result-grid">
+    <div class="result-card">
+        <h3>📊 Disease Analysis</h3>
+        <div class="disease-info">
+            <div class="info-item">
+                <h4>Disease Type</h4>
+                <p style="font-size: 1.3em; font-weight: bold; color: #2c3e50;">
+                    {{ prediction.disease_type }}
+                    <span class="status-badge status-{% if prediction.status == 'Diseased' %}diseased{% else %}healthy{% endif %}">
+                        {{ prediction.status }}
+                    </span>
+                </p>
+            </div>
+            
+            <div class="info-item">
+                <h4>Confidence Level</h4>
+                <p>{{ prediction.confidence }}%</p>
+                <div class="confidence-bar">
+                    <div class="confidence-fill" style="width: {{ prediction.confidence }}%"></div>
+                </div>
+            </div>
+            
+            <div class="info-item">
+                <h4>Plant Health Score</h4>
+                <p>{{ prediction.health_score }}/100</p>
+                <div class="health-score-bar">
+                    <div class="health-score-fill" style="width: {{ prediction.health_score }}%"></div>
+                </div>
+                {% if prediction.health_score > 70 %}
+                <div class="health-indicator health-excellent">
+                    🌟 Excellent Health - Plant is thriving
+                </div>
+                {% elif prediction.health_score > 50 %}
+                <div class="health-indicator health-good">
+                    ⚠️ Moderate Health - Monitor closely
+                </div>
+                {% else %}
+                <div class="health-indicator health-poor">
+                    🔴 Poor Health - Immediate attention needed
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="info-item">
+                <h4>Estimated Yield Impact</h4>
+                <p style="font-size: 1.2em; font-weight: bold; color: #667eea;">{{ prediction.estimated_yield }} kg/plant</p>
+                <p style="color: #888; font-size: 0.9em;">*Estimation based on plant health and disease severity</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="result-card">
+        <h3>🖼️ Leaf Analysis</h3>
+        <div class="image-container">
+            <img src="{{ prediction.original_image }}" alt="Uploaded Leaf" class="leaf-image">
+        </div>
+        
+        {% if prediction.heatmap_url %}
+        <div class="heatmap-section">
+            <h4 style="margin-bottom: 15px;">🔥 Disease Heatmap</h4>
+            <div class="image-container">
+                <img src="{{ prediction.heatmap_url }}" alt="Disease Heatmap" class="leaf-image">
+            </div>
+            <p style="color: #666; font-size: 0.9em; text-align: center; margin-top: 10px;">
+                🔴 Red/Yellow regions indicate areas with highest disease probability
+            </p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card">
+    <h3 style="margin-bottom: 20px;">📋 Detailed Analysis & Treatment Guide</h3>
+    
+    <div class="info-item">
+        <h4>📝 Description</h4>
+        <p>{{ analysis.description }}</p>
+    </div>
+    
+    <div class="info-item">
+        <h4>⚠️ Symptoms</h4>
+        <p>{{ analysis.symptoms }}</p>
+    </div>
+    
+    <div class="info-item">
+        <h4>💊 Treatment</h4>
+        <p>{{ analysis.treatment }}</p>
+    </div>
+    
+    <div class="info-item">
+        <h4>🛡️ Prevention</h4>
+        <p>{{ analysis.prevention }}</p>
+    </div>
+</div>
+
+<div class="action-buttons">
+    <a href="{% url 'index' %}" class="btn">🔍 Analyze Another Leaf</a>
+</div>
+
+<script>
+    // Animate bars on page load
+    window.addEventListener('load', function() {
+        const confidenceFill = document.querySelector('.confidence-fill');
+        if (confidenceFill) {
+            const width = confidenceFill.style.width;
+            confidenceFill.style.width = '0%';
+            setTimeout(() => {
+                confidenceFill.style.width = width;
+            }, 100);
+        }
+        
+        const healthFill = document.querySelector('.health-score-fill');
+        if (healthFill) {
+            const width = healthFill.style.width;
+            healthFill.style.width = '0%';
+            setTimeout(() => {
+                healthFill.style.width = width;
+            }, 100);
+        }
+    });
+</script>
+{% endblock %}          
