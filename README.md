@@ -81,7 +81,7 @@ AgriFusionX is an advanced web application that uses state-of-the-art deep learn
 1. **Clone or download the project**
 ```bash
 git clone https://github.com/yourusername/AgriFusionX.git
-cd AgriFusionX
+cd agrifusionx-updated
 ```
 
 2. **Create Virtual Environment**
